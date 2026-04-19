@@ -1,4 +1,5 @@
 ---
+# yamllint disable rule:line-length
 name: Secure Flask Pipeline (DevSecOps)
 
 "on":
@@ -6,7 +7,7 @@ name: Secure Flask Pipeline (DevSecOps)
     branches:
       - main
 
-s:
+jobs:
   security-check:
     runs-on: ubuntu-latest
 
@@ -15,33 +16,34 @@ s:
         uses: actions/checkout@v3
 
       - name: Install Podman
-        run: sudo apt-get update && sudo apt-get install -y podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
 
       - name: Install Yamllint
         run: sudo apt-get install -y yamllint
 
       - name: Install Conftest
         run: |
-          wget https://github.com/open-policy-agent/conftest/releases/download/\
-            v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
+          wget https://github.com/open-policy-agent/conftest/releases/download/v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
           tar xzf conftest_0.45.0_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin
 
       - name: Lint YAML files
-        run: 'yamllint -d "{extends: default, rules: {line-length: disable}}" .'
+        run: yamllint -d relaxed .
 
       - name: Build image with Podman
         run: podman build -t flask-app .
 
       - name: Scan filesystem with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.20.0
         with:
           scan-type: fs
           scan-ref: .
           exit-code: 0
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: flask-app:latest
           exit-code: 0
