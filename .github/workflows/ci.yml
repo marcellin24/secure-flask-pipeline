@@ -24,13 +24,15 @@ jobs:
 
       - name: Install Conftest
         run: |
-          wget https://github.com/open-policy-agent/conftest/releases/\
-          download/v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
-          tar xzf conftest_0.45.0_Linux_x86_64.tar.gz
+          URL="https://github.com/open-policy-agent/conftest/releases/download/v0.45.0"
+          FILE="conftest_0.45.0_Linux_x86_64.tar.gz"
+          wget "$URL/$FILE"
+          tar xzf "$FILE"
           sudo mv conftest /usr/local/bin
 
       - name: Lint YAML files
-        run: yamllint -d relaxed .|| true
+        # Le '|| true' permet d'ignorer les erreurs de formatage
+        run: yamllint -d relaxed . || true
 
       - name: Build image with Podman
         run: podman build -t flask-app .
