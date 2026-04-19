@@ -1,8 +1,10 @@
+---
 name: DevSecOps Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   security-check:
@@ -32,4 +34,3 @@ jobs:
 
       - name: Run Conftest
         run: conftest test deployment.yaml --policy policy
-
