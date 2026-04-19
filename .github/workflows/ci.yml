@@ -6,7 +6,7 @@ name: Secure Flask Pipeline (DevSecOps)
     branches:
       - main
 
-jobs:
+s:
   security-check:
     runs-on: ubuntu-latest
 
@@ -23,12 +23,12 @@ jobs:
       - name: Install Conftest
         run: |
           wget https://github.com/open-policy-agent/conftest/releases/download/\
-          v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
+            v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
           tar xzf conftest_0.45.0_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin
 
       - name: Lint YAML files
-        run: yamllint -d "{extends: default, rules: {line-length: disable}}" .
+        run: 'yamllint -d "{extends: default, rules: {line-length: disable}}" .'
 
       - name: Build image with Podman
         run: podman build -t flask-app .
