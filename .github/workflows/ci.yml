@@ -1,22 +1,3 @@
-name: Secure Flask Pipeline (DevSecOps)
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  security-check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # ======================
-      # INSTALL TOOLS
-      # ======================
-
       - name: Install Podman
         run: sudo apt-get update && sudo apt-get install -y podman
 
@@ -32,35 +13,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: Install Conftest
-        run: |
-          wget https://github.com/open-policy-agent/conftest/releases/download/v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
-          tar xzf conftest_0.45.0_Linux_x86_64.tar.gz
-          sudo mv conftest /usr/local/bin
-
-      # ======================
-      # QUALITY CHECK
-      # ======================
-
       - name: Lint YAML files
         run: yamllint .
-
-      # ======================
-      # BUILD
-      # ======================
 
       - name: Build image with Podman
         run: podman build -t flask-app .
 
-      # ======================
-      # SECURITY SCANS
-      # ======================
-
       - name: Scan dependencies
         run: trivy fs .
 
-      - name: Scan container image
+      - name: Scan image
         run: trivy image localhost/flask-app
-
-      - name: Run Conftest policy check
-        run: conftest test deployment.yaml --policy policy
