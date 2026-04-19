@@ -13,25 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ======================
-      # INSTALL TOOLS
-      # ======================
-
       - name: Install Podman
         run: sudo apt-get update && sudo apt-get install -y podman
 
       - name: Install Yamllint
         run: sudo apt-get install -y yamllint
-
-       - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-
-          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.48.0_Linux-64bit.deb
-          sudo dpkg -i trivy_0.48.0_Linux-64bit.deb
-
-          trivy --version
 
       - name: Install Conftest
         run: |
@@ -39,29 +25,22 @@ jobs:
           tar xzf conftest_0.45.0_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin
 
-      # ======================
-      # QUALITY CHECK
-      # ======================
-
       - name: Lint YAML files
         run: yamllint .
-
-      # ======================
-      # BUILD
-      # ======================
 
       - name: Build image with Podman
         run: podman build -t flask-app .
 
-      # ======================
-      # SECURITY SCANS
-      # ======================
+      - name: Scan filesystem with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
 
-      - name: Scan dependencies
-        run: trivy fs .
-
-      - name: Scan container image
-        run: trivy image localhost/flask-app
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: localhost/flask-app
 
       - name: Run Conftest policy check
         run: conftest test deployment.yaml --policy policy
